@@ -25,6 +25,12 @@ dotrino-support {
   --ds-modal-bg: #fff; --ds-modal-text: #181c1e; --ds-modal-muted: #4a5560;
   --ds-modal-border: #e3e9ed; --ds-modal-hover: rgba(0,0,0,.06);
 }
+/* Tema del botón/overlay de instalar (acento de marca azul). */
+dotrino-install {
+  --cc-install-accent: #00658c;
+  --cc-install-modal-bg: #ffffff;
+  --cc-install-modal-color: #181c1e;
+}
 
 /* ---- topbar ---- */
 .topbar {

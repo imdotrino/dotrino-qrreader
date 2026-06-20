@@ -91,7 +91,7 @@ function render(state = {}) {
           <button data-lang="es" class="${lang === 'es' ? 'on' : ''}">ES</button>
           <button data-lang="en" class="${lang === 'en' ? 'on' : ''}">EN</button>
         </div>
-        <dotrino-install lang="${lang}" label="${_.install}"></dotrino-install>
+        <dotrino-install lang="${lang}" app-name="QR Reader" app-icon="/icon.svg"></dotrino-install>
         <dotrino-support
           href="https://ko-fi.com/dotrino"
           repo="imdotrino/dotrino-qrreader"
