@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://qrreader.dotrino.com/sitemap.xml

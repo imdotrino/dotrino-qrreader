@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#00658c"/>
+  <g fill="#ffffff">
+    <!-- esquina superior izquierda -->
+    <path d="M104 104h120v120H104zm32 32v56h56v-56z"/>
+    <!-- esquina superior derecha -->
+    <path d="M288 104h120v120H288zm32 32v56h56v-56z"/>
+    <!-- esquina inferior izquierda -->
+    <path d="M104 288h120v120H104zm32 32v56h56v-56z"/>
+    <!-- módulos sueltos (cuadrante inferior derecho) -->
+    <rect x="288" y="288" width="40" height="40"/>
+    <rect x="368" y="288" width="40" height="40"/>
+    <rect x="328" y="328" width="40" height="40"/>
+    <rect x="288" y="368" width="40" height="40"/>
+    <rect x="368" y="368" width="40" height="40"/>
+  </g>
+</svg>

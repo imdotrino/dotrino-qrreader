@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#00658c" />
+
+    <title>QR Reader — Lee códigos QR | Dotrino</title>
+    <meta name="description" content="Lector de códigos QR simple y gratuito: escanea con la cámara o sube una imagen, mira la información y abre el enlace. Autohospedado, sin trackers ni cuentas." />
+    <link rel="canonical" href="https://qrreader.dotrino.com/" />
+
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="QR Reader" />
+
+    <!-- Open Graph / Twitter (cáscara pública, sin datos de usuario) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="Dotrino" />
+    <meta property="og:title" content="QR Reader — Lee códigos QR" />
+    <meta property="og:description" content="Escanea un QR con la cámara o sube una imagen, mira la información y abre el enlace. Autohospedado, sin trackers." />
+    <meta property="og:url" content="https://qrreader.dotrino.com/" />
+    <meta property="og:image" content="https://qrreader.dotrino.com/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="QR Reader — Lee códigos QR" />
+    <meta name="twitter:description" content="Escanea un QR con la cámara o sube una imagen, mira la información y abre el enlace. Autohospedado, sin trackers." />
+    <meta name="twitter:image" content="https://qrreader.dotrino.com/og.jpg" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "QR Reader",
+        "url": "https://qrreader.dotrino.com/",
+        "description": "Lector de códigos QR: escanea con la cámara o sube una imagen, mira la información y abre el enlace.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "publisher": { "@type": "Organization", "name": "Dotrino", "url": "https://dotrino.com/" }
+      }
+    </script>
+
+    <!-- Analítica cookieless autohospedada (GoatCounter); no cuenta en localhost/LAN. -->
+    <script>window.goatcounter = { path: function (p) { return location.hostname + p } }</script>
+    <script data-goatcounter="https://goat.dotrino.com/count" async src="https://goat.dotrino.com/count.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
