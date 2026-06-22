@@ -1,5 +1,7 @@
 # QR Reader — Dotrino
 
+> **Parte del ecosistema [Dotrino](https://dotrino.com).** Misión: aplicaciones que resuelven problemas comunes, respetando tu privacidad — sin anuncios, sin cookies, sin rastreo de datos, sin vender tu identidad a nadie.
+
 Lector de códigos QR simple y autohospedado del ecosistema **Dotrino**
 (`qrreader.dotrino.com`). Escanea con la cámara o sube una imagen, muestra la
 información decodificada, detecta el tipo (enlace, correo, teléfono, Wi-Fi,
