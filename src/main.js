@@ -5,11 +5,14 @@
  * wifi/texto) y permite abrir el enlace o copiar el contenido. 100% en el
  * navegador: nada se sube a ningún servidor.
  */
+import './lang-migrate'          // ANTES del topbar: migra 'qrreader.lang' → 'dotrino.lang'
 import jsQR from 'jsqr'
 import { registerSW } from 'virtual:pwa-register'
-import '@dotrino/support'
+import '@dotrino/topbar'         // header estándar: marca + volver + idioma + perfil + support
 import '@dotrino/install'
 import './style.css'
+import { getIdentity } from './services/identity'
+import { getReputation } from './services/reputation'
 
 // Recarga cuando el SW nuevo toma control + re-chequeo periódico (CONVENCIONES §3).
 const updateSW = registerSW({ immediate: true })
@@ -56,8 +59,10 @@ const I18N = {
     privacy: 'Everything happens in your browser. Nothing is uploaded to any server.',
   },
 }
-const LANG_KEY = 'qrreader.lang'
-let lang = (localStorage.getItem(LANG_KEY) || (navigator.language || 'es').slice(0, 2)) === 'en' ? 'en' : 'es'
+// El idioma lo manda el <dotrino-topbar> (persiste en 'dotrino.lang' y setea
+// document.documentElement.lang). La app solo lo lee y reacciona a su evento.
+const topbar = document.getElementById('topbar')
+let lang = topbar?.lang === 'en' ? 'en' : 'es'
 const t = () => I18N[lang]
 
 /* ---------------- Detección de tipo de contenido ---------------- */
@@ -81,25 +86,6 @@ const app = document.getElementById('app')
 function render(state = {}) {
   const _ = t()
   app.innerHTML = `
-    <header class="topbar">
-      <div class="brand">
-        <img src="/icon.svg" alt="" width="30" height="30" />
-        <span>QR Reader</span>
-      </div>
-      <div class="actions">
-        <div class="lang" role="group" aria-label="es / en">
-          <button data-lang="es" class="${lang === 'es' ? 'on' : ''}">ES</button>
-          <button data-lang="en" class="${lang === 'en' ? 'on' : ''}">EN</button>
-        </div>
-        <dotrino-install lang="${lang}"></dotrino-install>
-        <dotrino-support
-          href="https://ko-fi.com/dotrino"
-          repo="imdotrino/dotrino-qrreader"
-          discord="https://discord.gg/D648uq7cth"
-          lang="${lang}"></dotrino-support>
-      </div>
-    </header>
-
     <main class="wrap">
       <h1 class="tagline">${_.tagline}</h1>
 
@@ -163,9 +149,6 @@ let rafId = 0
 let detector = null
 
 function wire(state) {
-  app.querySelectorAll('[data-lang]').forEach((b) =>
-    b.addEventListener('click', () => { lang = b.dataset.lang; localStorage.setItem(LANG_KEY, lang); document.documentElement.lang = lang; stopScan(); render() }))
-
   const file = app.querySelector('#file')
   file?.addEventListener('change', (e) => {
     const f = e.target.files?.[0]
@@ -272,5 +255,43 @@ const linkIcon = () => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const copyIcon = () => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
 const qrGlyph = () => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h7v7H3zm2 2v3h3V5zm7-2h0M3 14h7v7H3zm2 2v3h3v-3zm9-13h7v7h-7zm2 2v3h3V5zm-5 9h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z"/></svg>'
 
-document.documentElement.lang = lang
+/* ---------------- Topbar del ecosistema (§5 / §6.1) ---------------- */
+
+// Tema claro del modal "Mi perfil" (vars --ccp-*), acorde a la paleta de la app.
+const PROFILE_THEME = {
+  '--ccp-bg': '#ffffff', '--ccp-bg-2': '#f4f7f9', '--ccp-bg-3': '#eaeff3', '--ccp-bg-4': '#e3e9ed',
+  '--ccp-border': '#cfd8de', '--ccp-text': '#181c1e', '--ccp-muted': '#4a5560',
+  '--ccp-accent': '#00658c', '--ccp-accent-2': '#00506f', '--ccp-accent-text': '#ffffff',
+  '--ccp-gold': '#c98a00', '--ccp-derived': '#b07f00',
+  '--ccp-online': '#00897b', '--ccp-affinity': '#2f8fd6', '--ccp-input-bg': '#f1f4f6', '--ccp-radius': '16px',
+  '--ccp-font': "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif",
+  '--ccp-font-headline': "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif",
+  '--ccp-font-mono': "'JetBrains Mono', ui-monospace, monospace",
+}
+
+// <dotrino-install> vive en LIGHT DOM (slot): el lang se le propaga a mano.
+const installEl = document.querySelector('dotrino-install')
+const syncInstallLang = () => installEl?.setAttribute('lang', lang)
+
+if (topbar) {
+  topbar.profileTheme = PROFILE_THEME
+
+  topbar.addEventListener('dotrino-lang', (e) => {
+    lang = e.detail.lang === 'en' ? 'en' : 'es'
+    syncInstallLang()
+    stopScan()
+    render()
+  })
+
+  // Identidad (§6.1): el topbar es DUEÑO del modal "Mi perfil"; solo le pasamos
+  // los pilares. Si el vault no responde, el botón queda sin modal y la app
+  // sigue funcionando (leer un QR no necesita identidad).
+  ;(async () => {
+    const identity = await getIdentity()
+    topbar.identity = identity ?? null
+    if (identity) topbar.reputation = await getReputation()
+  })()
+}
+
+syncInstallLang()
 render()

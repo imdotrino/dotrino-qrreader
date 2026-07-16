@@ -16,40 +16,33 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { scroll-behavior: smooth; }
-body { font-family: var(--font); background: var(--ink); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
-#app { min-height: 100vh; display: flex; flex-direction: column; }
+body { font-family: var(--font); background: var(--ink); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
+#app { flex: 1; display: flex; flex-direction: column; }
 
-/* Tema claro para el modal de support (vars que penetran el Shadow DOM). */
-dotrino-support {
+/* ---- topbar estándar del ecosistema (@dotrino/topbar) ----
+   El header ya no se arma aquí: lo trae <dotrino-topbar> (marca + volver +
+   idioma + perfil + moneda de support). Solo lo tematizamos con la paleta
+   clara de la app; el componente viene oscuro/morado por defecto. */
+dotrino-topbar {
+  position: sticky; top: 0; z-index: 10;   /* el .bar del componente no es sticky */
+  --dotrino-topbar-bg: rgba(244, 247, 249, .85);
+  --dotrino-topbar-border: #e3e9ed;
+  --dotrino-topbar-text: #181c1e;
+  --dotrino-topbar-muted: #4a5560;
+  --dotrino-topbar-accent: #00658c;
+  --dotrino-topbar-font: var(--font);
+}
+/* Tema claro del modal de support, que vive dentro del topbar (::part(coin)). */
+dotrino-topbar::part(coin) {
   --ds-accent: #00658c; --ds-accent-press: #00506f;
   --ds-modal-bg: #fff; --ds-modal-text: #181c1e; --ds-modal-muted: #4a5560;
   --ds-modal-border: #e3e9ed; --ds-modal-hover: rgba(0,0,0,.06);
 }
-/* Tema del botón/overlay de instalar (acento de marca azul). */
+/* Tema del botón/overlay de instalar (acento de marca azul). Vive en light DOM. */
 dotrino-install {
   --cc-install-accent: #00658c;
   --cc-install-modal-bg: #ffffff;
   --cc-install-modal-color: #181c1e;
-}
-
-/* ---- topbar ---- */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: .6rem;
-  padding: .8rem 1.1rem; background: rgba(244,247,249,.85);
-  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
-  position: sticky; top: 0; z-index: 10;
-  padding-top: calc(.8rem + env(safe-area-inset-top));
-}
-.brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.15rem; }
-.actions { display: flex; align-items: center; gap: .55rem; }
-.lang { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--radius-pill); overflow: hidden; }
-.lang button { border: 0; background: transparent; color: var(--text-dim); padding: .3rem .7rem; font: inherit; font-weight: 700; cursor: pointer; }
-.lang button.on { background: var(--accent); color: #fff; }
-
-@media (max-width: 560px) {
-  .brand { order: 1; }
-  .actions { order: 2; flex-basis: 100%; justify-content: flex-end; }
 }
 
 /* ---- layout ---- */

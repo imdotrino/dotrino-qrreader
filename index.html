@@ -50,6 +50,23 @@
     <script data-goatcounter="https://goat.dotrino.com/count" async src="https://goat.dotrino.com/count.js"></script>
   </head>
   <body>
+    <!--
+      Topbar estándar del ecosistema (CONVENCIONES §5). Vive FUERA de #app a
+      propósito: main.js reescribe #app.innerHTML en cada render, y ahí dentro el
+      componente se destruiría y recrearía en cada escaneo (parpadeo + reinstalar
+      el controlador de "volver"). Se cablea por JS desde main.js.
+    -->
+    <dotrino-topbar
+      id="topbar"
+      brand="QR Reader"
+      icon="/icon.svg"
+      brand-href="./"
+      profile
+      support-href="https://ko-fi.com/dotrino"
+      support-repo="imdotrino/dotrino-qrreader"
+      support-discord="https://discord.gg/D648uq7cth">
+      <dotrino-install slot="end"></dotrino-install>
+    </dotrino-topbar>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
