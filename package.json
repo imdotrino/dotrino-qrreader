@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@dotrino/identity": "0.33.0",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "vite": "5.4.10",
-    "vite-plugin-pwa": "0.20.5"
+    "vite-plugin-pwa": "0.20.5",
+    "typescript": "5.9.3"
   }
 }
