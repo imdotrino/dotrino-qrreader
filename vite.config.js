@@ -26,7 +26,7 @@ export default defineConfig({
       manifest: {
         name: 'QR Reader — Dotrino',
         short_name: 'QR Reader',
-        description: 'Lector de QR simple: muestra la información y abre el enlace. Autohospedado, sin trackers.',
+        description: 'Lector de QR simple: muestra la información y abre el enlace. Todo pasa en tu navegador, sin trackers.',
         lang: 'es',
         start_url: './',
         scope: './',
