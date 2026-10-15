@@ -1,12 +1,12 @@
 /**
  * QR Reader — lector de QR del ecosistema Dotrino.
- * Escanea con la cámara (BarcodeDetector nativo, fallback a jsQR) o sube una
- * imagen, muestra la información decodificada, detecta el tipo (URL/email/tel/
- * wifi/texto) y permite abrir el enlace o copiar el contenido. 100% en el
- * navegador: nada se sube a ningún servidor.
+ * Escanea con la cámara o sube una imagen (decodifica @dotrino/qr), muestra la
+ * información decodificada, detecta el tipo (URL/email/tel/wifi/texto) y permite
+ * abrir el enlace o copiar el contenido. 100% en el navegador: nada se sube a
+ * ningún servidor.
  */
 import './lang-migrate'          // ANTES del topbar: migra 'qrreader.lang' → 'dotrino.lang'
-import jsQR from 'jsqr'
+import { scanFrame, scanImageFile } from '@dotrino/qr'
 import { registerSW } from 'virtual:pwa-register'
 import '@dotrino/topbar'         // header estándar: marca + volver + idioma + perfil + support
 import '@dotrino/install'
@@ -146,7 +146,6 @@ function resultCard(res) {
 /* ---------------- Cableado / lógica ---------------- */
 let stream = null
 let rafId = 0
-let detector = null
 
 function wire(state) {
   const file = app.querySelector('#file')
@@ -184,29 +183,12 @@ function startVideoLoop() {
   if (!video || !stream) return
   video.srcObject = stream
   video.play().catch(() => {})
-  if ('BarcodeDetector' in window && !detector) {
-    try { detector = new window.BarcodeDetector({ formats: ['qr_code'] }) } catch { detector = null }
-  }
   const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
-  const tick = async () => {
+  const tick = () => {
     if (!stream) return
     if (video.readyState >= 2) {
-      let found = null
-      if (detector) {
-        try { const codes = await detector.detect(video); if (codes[0]) found = codes[0].rawValue } catch { /* sigue con jsQR */ }
-      }
-      if (!found) {
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        if (canvas.width && canvas.height) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-          const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
-          const code = jsQR(img.data, img.width, img.height)
-          if (code?.data) found = code.data
-        }
-      }
+      const found = scanFrame(video, canvas)
       if (found) { stopScan(); render({ result: found }); return }
     }
     rafId = requestAnimationFrame(tick)
@@ -219,23 +201,10 @@ function stopScan() {
   if (stream) { stream.getTracks().forEach((tr) => tr.stop()); stream = null }
 }
 
-function decodeImageFile(f) {
-  const url = URL.createObjectURL(f)
-  const img = new Image()
-  img.onload = () => {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    canvas.width = img.naturalWidth
-    canvas.height = img.naturalHeight
-    ctx.drawImage(img, 0, 0)
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    const code = jsQR(data.data, data.width, data.height)
-    URL.revokeObjectURL(url)
-    if (code?.data) render({ result: code.data })
-    else render({ error: t().notFound })
-  }
-  img.onerror = () => { URL.revokeObjectURL(url); render({ error: t().notFound }) }
-  img.src = url
+async function decodeImageFile(f) {
+  const text = await scanImageFile(f)
+  if (text) render({ result: text })
+  else render({ error: t().notFound })
 }
 
 function copy(text, btn) {
