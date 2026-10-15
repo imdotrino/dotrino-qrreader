@@ -10,6 +10,7 @@ import { scanFrame, scanImageFile } from '@dotrino/qr'
 import { registerSW } from 'virtual:pwa-register'
 import '@dotrino/topbar'         // header estándar: marca + volver + idioma + perfil + support
 import '@dotrino/install'
+import '@dotrino/theme/theme.css'
 import './style.css'
 import { getIdentity } from './services/identity'
 import { getReputation } from './services/reputation'
@@ -226,24 +227,11 @@ const qrGlyph = () => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden=
 
 /* ---------------- Topbar del ecosistema (§5 / §6.1) ---------------- */
 
-// Tema claro del modal "Mi perfil" (vars --ccp-*), acorde a la paleta de la app.
-const PROFILE_THEME = {
-  '--ccp-bg': '#ffffff', '--ccp-bg-2': '#f4f7f9', '--ccp-bg-3': '#eaeff3', '--ccp-bg-4': '#e3e9ed',
-  '--ccp-border': '#cfd8de', '--ccp-text': '#181c1e', '--ccp-muted': '#4a5560',
-  '--ccp-accent': '#00658c', '--ccp-accent-2': '#00506f', '--ccp-accent-text': '#ffffff',
-  '--ccp-gold': '#c98a00', '--ccp-derived': '#b07f00',
-  '--ccp-online': '#00897b', '--ccp-affinity': '#2f8fd6', '--ccp-input-bg': '#f1f4f6', '--ccp-radius': '16px',
-  '--ccp-font': "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif",
-  '--ccp-font-headline': "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif",
-  '--ccp-font-mono': "'JetBrains Mono', ui-monospace, monospace",
-}
-
 // <dotrino-install> vive en LIGHT DOM (slot): el lang se le propaga a mano.
 const installEl = document.querySelector('dotrino-install')
 const syncInstallLang = () => installEl?.setAttribute('lang', lang)
 
 if (topbar) {
-  topbar.profileTheme = PROFILE_THEME
 
   topbar.addEventListener('dotrino-lang', (e) => {
     lang = e.detail.lang === 'en' ? 'en' : 'es'
