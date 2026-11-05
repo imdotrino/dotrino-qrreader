@@ -62,11 +62,25 @@ const I18N = {
 }
 // El idioma lo manda el <dotrino-topbar> (persiste en 'dotrino.lang' y setea
 // document.documentElement.lang). La app solo lo lee y reacciona a su evento.
-const topbar = document.getElementById('topbar')
+const topbar = /** @type {import('@dotrino/topbar').DotrinoTopbar | null} */ (document.getElementById('topbar'))
+/** @type {keyof typeof I18N} */
 let lang = topbar?.lang === 'en' ? 'en' : 'es'
 const t = () => I18N[lang]
 
+/**
+ * @typedef {{ type: 'url' | 'email' | 'tel' | 'geo', href: string }
+ *   | { type: 'wifi', wifi: Wifi }
+ *   | { type: 'text' }} Classified
+ * @typedef {{ ssid: string, type: string, pass: string }} Wifi
+ * @typedef {{ result?: string, scanning?: boolean, error?: string }} ViewState
+ */
+
 /* ---------------- Detección de tipo de contenido ---------------- */
+/**
+ * Qué es lo que dice el código: enlace, correo, teléfono, Wi-Fi, ubicación o texto.
+ * @param {string} raw
+ * @returns {Classified}
+ */
 function classify(raw) {
   const s = raw.trim()
   if (/^https?:\/\//i.test(s)) return { type: 'url', href: s }
@@ -76,14 +90,22 @@ function classify(raw) {
   if (/^geo:/i.test(s)) return { type: 'geo', href: 'https://maps.google.com/?q=' + s.slice(4) }
   return { type: 'text' }
 }
+/**
+ * @param {string} s un `WIFI:S:…;T:…;P:…;;`
+ * @returns {Wifi}
+ */
 function parseWifi(s) {
+  /** @param {string} k */
   const m = (k) => (s.match(new RegExp(k + ':([^;]*)', 'i')) || [])[1] || ''
   return { ssid: m('S'), type: m('T') || 'WPA', pass: m('P') }
 }
 
 /* ---------------- UI ---------------- */
-const app = document.getElementById('app')
+const appEl = document.getElementById('app')
+if (!appEl) throw new Error('qrreader: #app is missing from index.html')
+const app = appEl
 
+/** @param {ViewState} [state] */
 function render(state = {}) {
   const _ = t()
   app.innerHTML = `
@@ -101,6 +123,7 @@ function render(state = {}) {
   wire(state)
 }
 
+/** @param {ViewState} state */
 function scanCard(state) {
   const _ = t()
   return `
@@ -119,6 +142,7 @@ function scanCard(state) {
     </div>`
 }
 
+/** @param {string} res */
 function resultCard(res) {
   const _ = t()
   const c = classify(res)
@@ -145,24 +169,27 @@ function resultCard(res) {
 }
 
 /* ---------------- Cableado / lógica ---------------- */
+/** @type {MediaStream | null} */
 let stream = null
 let rafId = 0
 
+/** @param {ViewState} state */
 function wire(state) {
-  const file = app.querySelector('#file')
-  file?.addEventListener('change', (e) => {
-    const f = e.target.files?.[0]
+  const file = /** @type {HTMLInputElement | null} */ (app.querySelector('#file'))
+  file?.addEventListener('change', () => {
+    const f = file.files?.[0]
     if (f) decodeImageFile(f)
   })
 
-  app.querySelectorAll('[data-act]').forEach((el) => {
+  const actions = /** @type {NodeListOf<HTMLElement>} */ (app.querySelectorAll('[data-act]'))
+  actions.forEach((el) => {
     el.addEventListener('click', () => {
       const act = el.dataset.act
       if (act === 'scan') startScan()
       else if (act === 'stop') { stopScan(); render() }
-      else if (act === 'upload') file.click()
+      else if (act === 'upload') file?.click()
       else if (act === 'again') { stopScan(); render() }
-      else if (act === 'copy') copy(el.dataset.copy, el)
+      else if (act === 'copy') copy(el.dataset.copy ?? '', el)
     })
   })
 
@@ -180,7 +207,7 @@ async function startScan() {
 }
 
 function startVideoLoop() {
-  const video = app.querySelector('#video')
+  const video = /** @type {HTMLVideoElement | null} */ (app.querySelector('#video'))
   if (!video || !stream) return
   video.srcObject = stream
   video.play().catch(() => {})
@@ -202,12 +229,17 @@ function stopScan() {
   if (stream) { stream.getTracks().forEach((tr) => tr.stop()); stream = null }
 }
 
+/** @param {File} f */
 async function decodeImageFile(f) {
   const text = await scanImageFile(f)
   if (text) render({ result: text })
   else render({ error: t().notFound })
 }
 
+/**
+ * @param {string} text
+ * @param {HTMLElement} btn el botón, que dice «Copiado» un momento
+ */
 function copy(text, btn) {
   navigator.clipboard?.writeText(text).then(() => {
     const old = btn.innerHTML
@@ -217,7 +249,9 @@ function copy(text, btn) {
 }
 
 /* ---------------- helpers / iconos ---------------- */
+/** @param {unknown} s */
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+/** @param {unknown} s */
 const escAttr = (s) => esc(s).replace(/"/g, '&quot;')
 const camIcon = () => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
 const imgIcon = () => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
